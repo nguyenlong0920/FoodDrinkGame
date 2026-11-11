@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#edf3f8">
+    <title>Food or Drink? — Sorting Race</title>
+
+    <style>
+        /* =========================================================
+           FOOD OR DRINK — LIGHT CLASSROOM EDITION
+           Optimised for 16:9 classroom TVs, Full HD and 4K.
+           No external libraries, fonts, images or network required.
+           ========================================================= */
+
+        :root {
+            color-scheme: light;
+            font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --surface-raised: #f7faff;
+            --surface-soft: #edf4fc;
+            --text: #21324c;
+            --muted: #5c6e86;
+            --line: #dce5f0;
+
+            --food: #d8583e;
+            --food-soft: #fff0e9;
+            --food-border: #eca08d;
+
+            --drink: #167cbe;
+            --drink-soft: #e8f5ff;
+            --drink-border: #8bc9ed;
+
+            --accent: #6756c8;
+            --success: #138765;
+            --success-soft: #e3f8ed;
+            --danger: #cf4259;
+            --danger-soft: #fff0f1;
+            --warning: #bc7a0b;
+
+            --radius-lg: 24px;
+            --radius-md: 17px;
+            --radius-sm: 12px;
+
+            --shadow-card: 0 7px 22px rgba(36, 65, 104, 0.08);
+            --shadow-float: 0 18px 44px rgba(35, 53, 81, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-width: 320px;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            background:
+                radial-gradient(ellipse at 12% 8%, rgba(87, 119, 255, 0.19), transparent 34%),
+                radial-gradient(ellipse at 88% 90%, rgba(34, 190, 200, 0.12), transparent 32%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        button {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        .drop-zone:focus-visible {
+            outline: 3px solid var(--warning);
+            outline-offset: 4px;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.48;
+            transform: none !important;
+        }
+
+        /* ---------- App layout: 16:9 desktop / TV ---------- */
+
+        .app-shell {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: clamp(16px, 2.2vh, 28px) clamp(20px, 3vw, 58px);
+            display: grid;
+            grid-template-rows: auto auto minmax(230px, 0.95fr) minmax(220px, 1fr) auto auto;
+            gap: clamp(12px, 1.5vh, 20px);
+            max-width: 2200px;
+            margin-inline: auto;
+        }
+
+        /* ---------- Header ---------- */
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .hero-copy {
+            min-width: 0;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            color: #b9c8ff;
+            font-size: clamp(11px, 0.85vw, 15px);
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 24px;
+            height: 3px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--food), var(--drink));
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(34px, 3.2vw, 66px);
+            line-height: 1.04;
+            font-weight: 900;
+            letter-spacing: -0.045em;
+        }
+
+        .title-food {
+            color: var(--food);
+        }
+
+        .title-drink {
+            color: var(--drink);
+        }
+
+        .subtitle {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: clamp(14px, 1.12vw, 21px);
+            line-height: 1.35;
+        }
+
+        .hero-mark {
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            width: clamp(58px, 5.5vw, 96px);
+            aspect-ratio: 1;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 25px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.035));
+            box-shadow: var(--shadow-card);
+            font-size: clamp(30px, 3vw, 54px);
+            transform: rotate(3deg);
+        }
+
+        /* ---------- Control bar ---------- */
+
+        .control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 11px 13px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            background: rgba(19, 31, 56, 0.84);
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(12px);
+        }
+
+        .status-group,
+        .action-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .status-chip {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.045);
+            color: var(--muted);
+            font-size: clamp(13px, 0.95vw, 17px);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-chip strong {
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-chip strong {
+            min-width: 54px;
+            color: #fff;
+            font-size: 1.12em;
+        }
+
+        .timer-chip.is-warning {
+            border-color: rgba(255, 198, 92, 0.6);
+            background: rgba(255, 198, 92, 0.12);
+        }
+
+        .timer-chip.is-danger {
+            border-color: rgba(255, 101, 117, 0.65);
+            background: rgba(255, 101, 117, 0.14);
+            animation: timer-pulse 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes timer-pulse {
+            from { box-shadow: 0 0 0 rgba(255, 101, 117, 0); }
+            to { box-shadow: 0 0 18px rgba(255, 101, 117, 0.24); }
+        }
+
+        .progress-track {
+            width: clamp(76px, 8vw, 150px);
+            height: 7px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--drink), var(--success));
+            transition: width 0.25s ease;
+        }
+
+        .btn {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 15px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: white;
+            font-size: clamp(13px, 0.92vw, 16px);
+            font-weight: 800;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.16s ease, filter 0.16s ease, background 0.16s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7668f6, #5748d9);
+            box-shadow: 0 7px 18px rgba(99, 83, 230, 0.26);
+        }
+
+        .btn-secondary {
+            border-color: var(--line);
+            background: rgba(255,255,255,0.07);
+            color: #e5ebff;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #159d78, #087b69);
+            box-shadow: 0 7px 18px rgba(18, 153, 117, 0.2);
+        }
+
+        .btn-icon {
+            width: 42px;
+            padding-inline: 0;
+            font-size: 18px;
+        }
+
+        /* ---------- Category board ---------- */
+
+        .board {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(12px, 1.3vw, 22px);
+        }
+
+        .category-panel {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(145deg, rgba(255,255,255,0.065), rgba(255,255,255,0.025));
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+        }
+
+        .category-panel.food {
+            border-top: 4px solid var(--food);
+        }
+
+        .category-panel.drink {
+            border-top: 4px solid var(--drink);
+        }
+
+        .category-panel.food.over {
+            border-color: var(--food);
+            background: linear-gradient(145deg, rgba(255,118,94,0.18), rgba(255,255,255,0.035));
+            transform: scale(1.006);
+        }
+
+        .category-panel.drink.over {
+            border-color: var(--drink);
+            background: linear-gradient(145deg, rgba(86,184,255,0.18), rgba(255,255,255,0.035));
+            transform: scale(1.006);
+        }
+
+        .category-header {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: clamp(12px, 1.35vh, 20px) clamp(15px, 1.5vw, 25px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .category-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-icon {
+            width: clamp(36px, 3vw, 52px);
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: clamp(20px, 1.7vw, 30px);
+        }
+
+        .food .category-icon {
+            background: var(--food-soft);
+        }
+
+        .drink .category-icon {
+            background: var(--drink-soft);
+        }
+
+        .category-title {
+            margin: 0;
+            font-size: clamp(22px, 1.8vw, 34px);
+            font-weight: 900;
+            letter-spacing: 0.015em;
+        }
+
+        .food .category-title {
+            color: var(--food);
+        }
+
+        .drink .category-title {
+            color: var(--drink);
+        }
+
+        .category-description {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: clamp(11px, 0.82vw, 15px);
+        }
+
+        .category-count {
+            min-width: 42px;
+            padding: 7px 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.12);
+            color: var(--text);
+            font-size: clamp(13px, 1vw, 17px);
+            font-weight: 900;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .drop-zone {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-content: flex-start;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: clamp(8px, 0.75vw, 13px);
+            padding: clamp(12px, 1.3vw, 22px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(180, 198, 230, 0.35) transparent;
+        }
+
+        .drop-placeholder {
+            width: 100%;
+            min-height: 54px;
+            display: grid;
+            place-items: center;
+            border: 1px dashed rgba(190, 208, 242, 0.2);
+            border-radius: 14px;
+            color: rgba(210, 221, 244, 0.43);
+            font-size: clamp(12px, 0.95vw, 16px);
+            pointer-events: none;
+        }
+
+        /* ---------- Word bank ---------- */
+
+        .bank-panel {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(145deg, rgba(35, 52, 84, 0.92), rgba(20, 32, 57, 0.94));
+            box-shadow: var(--shadow-card);
+        }
+
+        .bank-header {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: clamp(11px, 1.2vh, 18px) clamp(15px, 1.5vw, 25px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .bank-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .bank-icon {
+            width: clamp(34px, 2.7vw, 48px);
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(154, 140, 255, 0.16);
+            font-size: clamp(19px, 1.5vw, 27px);
+        }
+
+        .bank-title {
+            margin: 0;
+            font-size: clamp(18px, 1.5vw, 28px);
+            font-weight: 900;
+        }
+
+        .bank-hint {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: clamp(11px, 0.78vw, 14px);
+        }
+
+        .bank-counter {
+            color: #c9d4f1;
+            font-size: clamp(12px, 0.9vw, 16px);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .word-bank {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            align-content: start;
+            align-items: start;
+            gap: clamp(8px, 0.8vw, 14px);
+            padding: clamp(12px, 1.2vw, 20px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(180, 198, 230, 0.35) transparent;
+        }
+
+        /* ---------- Vocabulary cards ---------- */
+
+        .tile {
+            position: relative;
+            min-width: 0;
+            min-height: clamp(44px, 5.3vh, 66px);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 9px;
+            padding: 9px clamp(10px, 1vw, 17px);
+            border: 1px solid rgba(205, 218, 245, 0.22);
+            border-radius: 13px;
+            background: linear-gradient(145deg, #f9fbff, #e8efff);
+            color: #1a2b4c;
+            box-shadow: 0 4px 0 rgba(4, 11, 27, 0.22), 0 8px 18px rgba(0,0,0,0.12);
+            font-size: clamp(13px, 1.02vw, 19px);
+            font-weight: 850;
+            line-height: 1.18;
+            text-align: left;
+            cursor: grab;
+            user-select: none;
+            touch-action: manipulation;
+            overflow-wrap: anywhere;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+            animation: card-in 0.28s both;
+        }
+
+        @keyframes card-in {
+            from { opacity: 0; transform: translateY(8px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .tile:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 rgba(4, 11, 27, 0.18), 0 13px 22px rgba(0,0,0,0.17);
+        }
+
+        .tile:active {
+            cursor: grabbing;
+        }
+
+        .tile[aria-pressed="true"] {
+            border: 2px solid var(--warning);
+            background: #fff4d8;
+            box-shadow: 0 0 0 4px rgba(255, 198, 92, 0.17), 0 5px 0 rgba(4, 11, 27, 0.18);
+            transform: translateY(-2px);
+        }
+
+        .tile.dragging {
+            opacity: 0.38;
+            transform: scale(0.96);
+        }
+
+        .tile.correct {
+            border: 2px solid var(--success);
+            background: linear-gradient(145deg, #eafff5, #c9f7e4);
+            color: #075c43;
+            cursor: default;
+        }
+
+        .tile.wrong {
+            border: 2px solid var(--danger);
+            background: linear-gradient(145deg, #fff0f2, #ffdce1);
+            color: #8e2433;
+            cursor: default;
+        }
+
+        .tile-emoji {
+            flex: 0 0 auto;
+            font-size: 1.22em;
+        }
+
+        .tile-word {
+            min-width: 0;
+        }
+
+        /* ---------- Feedback / footer ---------- */
+
+        .feedback {
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dce5ff;
+            font-size: clamp(14px, 1.08vw, 19px);
+            font-weight: 850;
+            text-align: center;
+        }
+
+        .feedback.is-success {
+            color: var(--success);
+        }
+
+        .feedback.is-warning {
+            color: var(--warning);
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: rgba(185, 199, 226, 0.62);
+            font-size: clamp(10px, 0.72vw, 13px);
+        }
+
+        .footer strong {
+            color: rgba(215, 225, 247, 0.82);
+            font-weight: 700;
+        }
+
+        /* ---------- Results overlay ---------- */
+
+        .result-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            place-items: center;
+            padding: 24px;
+            background: rgba(4, 9, 22, 0.78);
+            backdrop-filter: blur(12px);
+        }
+
+        .result-overlay.show {
+            display: grid;
+            animation: fade-in 0.2s ease both;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-card {
+            width: min(92vw, 620px);
+            padding: clamp(26px, 4vw, 48px);
+            border: 1px solid rgba(210, 222, 255, 0.2);
+            border-radius: 28px;
+            background: linear-gradient(145deg, #1c2d4e, #111d35);
+            box-shadow: var(--shadow-float);
+            text-align: center;
+            animation: result-pop 0.35s cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        @keyframes result-pop {
+            from { opacity: 0; transform: translateY(18px) scale(0.94); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .result-emoji {
+            font-size: clamp(48px, 6vw, 82px);
+            line-height: 1;
+        }
+
+        .result-title {
+            margin: 15px 0 5px;
+            font-size: clamp(27px, 3vw, 44px);
+            font-weight: 950;
+        }
+
+        .result-score {
+            margin: 12px 0 5px;
+            color: var(--success);
+            font-size: clamp(48px, 6vw, 78px);
+            font-weight: 950;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .result-detail {
+            margin: 10px 0 24px;
+            color: var(--muted);
+            font-size: clamp(14px, 1.2vw, 19px);
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* ---------- Confetti ---------- */
+
+        .confetti-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .confetti {
+            position: absolute;
+            top: -20px;
+            width: 10px;
+            height: 16px;
+            border-radius: 3px;
+            animation: confetti-fall var(--duration, 2.8s) linear forwards;
+            transform: rotate(var(--rotation, 0deg));
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(760deg);
+                opacity: 0.85;
+            }
+        }
+
+
+
+
+        /* Balanced light classroom palette: gentle surfaces, readable type. */
+        body {
+            background: linear-gradient(160deg, #edf3f8 0%, #e8eff7 56%, #f2f5f9 100%);
+            color: #35455c;
+        }
+        .eyebrow { color: #6b68a1; letter-spacing: 0.14em; }
+        .subtitle, .category-description, .bank-hint { color: #62748b; }
+        .hero-mark {
+            border-color: #d8e1ec;
+            background: linear-gradient(145deg, #fff0de, #e3effa);
+            box-shadow: 0 6px 15px rgba(66, 86, 115, 0.09);
+        }
+        .control-bar {
+            background: #f9fbfe;
+            border-color: #cedbe9;
+            box-shadow: 0 5px 18px rgba(50, 74, 104, 0.07);
+        }
+        .category-panel, .bank-panel {
+            border-color: #cfdae8;
+            box-shadow: 0 7px 22px rgba(50, 74, 104, 0.08);
+        }
+        .status-chip {
+            background: #eaf1f8;
+            color: #566a83;
+            border-color: #d2deec;
+        }
+        .status-chip strong, .timer-chip strong { color: #354761; }
+        .progress-track { background: #d5e0ec; }
+        .btn { letter-spacing: 0.005em; }
+        .btn-primary { background: #6865bc; color: #fff; box-shadow: 0 5px 12px rgba(104, 101, 188, .19); }
+        .btn-secondary { background: #dce8f4; color: #3d5874; border-color: #c6d5e5; }
+        .btn-check { background: #278e78; color: #fff; box-shadow: 0 5px 12px rgba(39, 142, 120, .17); }
+        .category-panel.food { background: #fff1e9; }
+        .category-panel.drink { background: #eaf4ff; }
+        .category-panel.food.over { background: #ffe3d4; }
+        .category-panel.drink.over { background: #d6ebff; }
+        .category-header { border-bottom-color: #d2dce7; }
+        .food .category-title { color: #b95c45; }
+        .drink .category-title { color: #327aab; }
+        .category-count {
+            background: rgba(255,255,255,.78);
+            border-color: #d2dce7;
+            color: #3f526b;
+        }
+        .drop-placeholder {
+            border: 2px dashed #a9bfd2;
+            color: #627a90;
+            background: rgba(255,255,255,.53);
+            font-weight: 700;
+        }
+        .drop-placeholder[hidden] { display: none !important; }
+        .bank-panel { background: #f4f7fc; }
+        .bank-icon { background: #e9e6f9; }
+        .bank-counter { color: #566b85; }
+        .tile {
+            border-color: #c7d6e7;
+            background: linear-gradient(145deg, #fff, #e7eff8);
+            color: #3c526b;
+            box-shadow: 0 3px 0 #cfdae7, 0 6px 13px rgba(63, 87, 114, 0.09);
+        }
+        .tile:hover:not(:disabled) { box-shadow: 0 5px 0 #bfcedf, 0 9px 17px rgba(56, 80, 111, 0.12); }
+        .tile[aria-pressed="true"] { background: #fff0c8; color: #645021; }
+        .feedback { color: #50677f; }
+        .feedback.is-success { color: #217c62; }
+        .feedback.is-warning { color: #9a6a21; }
+        .footer { color: #71819a; }
+        .footer strong { color: #52657d; }
+        .result-overlay { background: rgba(37, 53, 74, 0.42); }
+        .result-card {
+            border-color: #d0deeb;
+            background: #f7faff;
+            color: #354761;
+        }
+
+        /* ---------- Responsive tablet ---------- */
+
+        @media (max-width: 1100px) {
+            .app-shell {
+                grid-template-rows: auto auto minmax(220px, 0.9fr) minmax(220px, 1fr) auto;
+                padding-inline: 20px;
+            }
+
+            .word-bank {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .control-bar {
+                align-items: flex-start;
+            }
+        }
+
+        /* ---------- Responsive mobile ---------- */
+
+        @media (max-width: 700px) {
+            body {
+                overflow-y: auto;
+            }
+
+            .app-shell {
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                padding: 16px;
+                gap: 14px;
+            }
+
+            .hero {
+                align-items: flex-start;
+            }
+
+            .hero-mark {
+                width: 52px;
+                border-radius: 15px;
+                font-size: 27px;
+            }
+
+            h1 {
+                font-size: clamp(30px, 8vw, 44px);
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .control-bar {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .status-group,
+            .action-group {
+                justify-content: center;
+            }
+
+            .action-group .btn {
+                flex: 1;
+            }
+
+            .board {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .category-panel {
+                min-height: 190px;
+            }
+
+            .drop-zone {
+                min-height: 115px;
+            }
+
+            .word-bank {
+                flex: none;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                overflow: visible;
+            }
+
+            .tile {
+                min-height: 48px;
+                font-size: 14px;
+            }
+
+            .footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="app-shell">
+
+        <!-- Header -->
+        <header class="hero">
+            <div class="hero-copy">
+                <div class="eyebrow">Vocabulary challenge · Sorting race</div>
+                <h1>
+                    <span class="title-food">FOOD</span>
+                    <span>or</span>
+                    <span class="title-drink">DRINK?</span>
+                </h1>
+                <p class="subtitle">Move each word into the correct category. Beat the clock!</p>
+            </div>
+            <div class="hero-mark" aria-hidden="true">🍽️</div>
+        </header>
+
+        <!-- Controls -->
+        <section class="control-bar" aria-label="Game controls">
+            <div class="status-group">
+                <div class="status-chip timer-chip" id="timerChip">
+                    <span aria-hidden="true">⏱️</span>
+                    <strong id="timer" aria-live="off">02:00</strong>
+                </div>
+
+                <div class="status-chip">
+                    <span aria-hidden="true">🎯</span>
+                    <strong id="counter">0 / 15 sorted</strong>
+                </div>
+
+                <div class="status-chip" aria-label="Sorting progress">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <strong id="progressPercent">0%</strong>
+                </div>
+            </div>
+
+            <div class="action-group">
+                <button class="btn btn-primary" id="startBtn" type="button">
+                    ▶ Start race
+                </button>
+                <button class="btn btn-check" id="checkBtn" type="button">
+                    ✓ Check answers
+                </button>
+                <button class="btn btn-secondary" id="resetBtn" type="button">
+                    ↻ Play again
+                </button>
+            </div>
+        </section>
+
+        <!-- Sorting categories -->
+        <section class="board" aria-label="Sorting categories">
+
+            <section class="category-panel food" id="foodPanel">
+                <header class="category-header">
+                    <div class="category-title-wrap">
+                        <div class="category-icon" aria-hidden="true">🍽️</div>
+                        <div>
+                            <h2 class="category-title">FOOD</h2>
+                            <p class="category-description">We eat it.</p>
+                        </div>
+                    </div>
+                    <div class="category-count" id="foodCount">0</div>
+                </header>
+                <div
+                    class="drop-zone"
+                    id="foodZone"
+                    data-category="food"
+                    tabindex="0"
+                    role="group"
+                    aria-label="Food drop zone. Drop or click a selected card here."
+                >
+                    <div class="drop-placeholder" id="foodPlaceholder">Drop food cards here</div>
+                </div>
+            </section>
+
+            <section class="category-panel drink" id="drinkPanel">
+                <header class="category-header">
+                    <div class="category-title-wrap">
+                        <div class="category-icon" aria-hidden="true">🧃</div>
+                        <div>
+                            <h2 class="category-title">DRINK</h2>
+                            <p class="category-description">We drink it.</p>
+                        </div>
+                    </div>
+                    <div class="category-count" id="drinkCount">0</div>
+                </header>
+                <div
+                    class="drop-zone"
+                    id="drinkZone"
+                    data-category="drink"
+                    tabindex="0"
+                    role="group"
+                    aria-label="Drink drop zone. Drop or click a selected card here."
+                >
+                    <div class="drop-placeholder" id="drinkPlaceholder">Drop drink cards here</div>
+                </div>
+            </section>
+        </section>
+
+        <!-- Word bank -->
+        <section class="bank-panel" id="bankPanel">
+            <header class="bank-header">
+                <div class="bank-title-wrap">
+                    <div class="bank-icon" aria-hidden="true">🗂️</div>
+                    <div>
+                        <h2 class="bank-title">WORD CARDS</h2>
+                        <p class="bank-hint">Drag a card, or click a card and then click FOOD / DRINK. Click a sorted card to return it.</p>
+                    </div>
+                </div>
+                <div class="bank-counter" id="bankCount">15 cards remaining</div>
+            </header>
+            <div class="word-bank" id="wordBank" aria-label="Vocabulary cards"></div>
+        </section>
+
+        <!-- Feedback -->
+        <div class="feedback" id="feedback" role="status" aria-live="polite">
+            Ready? Press Start race when your team is ready!
+        </div>
+
+        <footer class="footer">
+            <span><strong>CLASSROOM CHALLENGE</strong> · Food &amp; Drink vocabulary</span>
+            <span>15 words · 2 minutes · Good luck!</span>
+        </footer>
+    </main>
+
+    <!-- Results -->
+    <div class="result-overlay" id="resultOverlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+        <div class="result-card">
+            <div class="result-emoji" id="resultEmoji">🏆</div>
+            <h2 class="result-title" id="resultTitle">Great job!</h2>
+            <div class="result-score" id="resultScore">15/15</div>
+            <p class="result-detail" id="resultDetail">You sorted every word correctly!</p>
+            <div class="result-actions">
+                <button class="btn btn-primary" id="resultReplayBtn" type="button">↻ Play again</button>
+                <button class="btn btn-secondary" id="resultCloseBtn" type="button">Close results</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+
+    <script>
+        (() => {
+            "use strict";
+
+            // =====================================================
+            // 1. VOCABULARY
+            // =====================================================
+
+            const vocabulary = [
+                // FOOD — 10 words
+                { word: "rice", category: "food", emoji: "🍚" },
+                { word: "pork", category: "food", emoji: "🥩" },
+                { word: "fish sauce", category: "food", emoji: "🧂" },
+                { word: "roast chicken", category: "food", emoji: "🍗" },
+                { word: "fried vegetables", category: "food", emoji: "🥦" },
+                { word: "fish", category: "food", emoji: "🐟" },
+                { word: "spring rolls", category: "food", emoji: "🥟" },
+                { word: "fried tofu", category: "food", emoji: "🍽️" },
+                { word: "canh (soup)", category: "food", emoji: "🍲" },
+                { word: "shrimp", category: "food", emoji: "🍤" },
+
+                // DRINK — 5 words
+                { word: "juice", category: "drink", emoji: "🧃" },
+                { word: "lemonade", category: "drink", emoji: "🍋" },
+                { word: "green tea", category: "drink", emoji: "🍵" },
+                { word: "mineral water", category: "drink", emoji: "💧" },
+                { word: "winter melon juice", category: "drink", emoji: "🥤" }
+            ].map((item, id) => ({ ...item, id }));
+
+            const GAME_DURATION = 120_000;
+
+            // =====================================================
+            // 2. DOM REFERENCES
+            // =====================================================
+
+            const $ = (id) => document.getElementById(id);
+
+            const dom = {
+                timer: $("timer"),
+                timerChip: $("timerChip"),
+                counter: $("counter"),
+                progressFill: $("progressFill"),
+                progressPercent: $("progressPercent"),
+
+                foodZone: $("foodZone"),
+                drinkZone: $("drinkZone"),
+                wordBank: $("wordBank"),
+
+                foodCount: $("foodCount"),
+                drinkCount: $("drinkCount"),
+                bankCount: $("bankCount"),
+
+                foodPlaceholder: $("foodPlaceholder"),
+                drinkPlaceholder: $("drinkPlaceholder"),
+
+                startBtn: $("startBtn"),
+                checkBtn: $("checkBtn"),
+                resetBtn: $("resetBtn"),
+
+                feedback: $("feedback"),
+
+                resultOverlay: $("resultOverlay"),
+                resultEmoji: $("resultEmoji"),
+                resultTitle: $("resultTitle"),
+                resultScore: $("resultScore"),
+                resultDetail: $("resultDetail"),
+                resultReplayBtn: $("resultReplayBtn"),
+                resultCloseBtn: $("resultCloseBtn"),
+
+                confettiLayer: $("confettiLayer")
+            };
+
+            // =====================================================
+            // 3. GAME STATE
+            // =====================================================
+
+            let remainingMs = GAME_DURATION;
+            let startedAt = null;
+            let timerInterval = null;
+            let isRunning = false;
+            let isFinished = false;
+            let selectedId = null;
+
+            // =====================================================
+            // 4. HELPERS
+            // =====================================================
+
+            function shuffle(items) {
+                const result = [...items];
+
+                for (let i = result.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [result[i], result[j]] = [result[j], result[i]];
+                }
+
+                return result;
+            }
+
+            function formatTime(milliseconds) {
+                const totalSeconds = Math.ceil(Math.max(0, milliseconds) / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+
+                return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+            }
+
+            function setFeedback(message, type = "") {
+                dom.feedback.textContent = message;
+                dom.feedback.className = "feedback";
+
+                if (type) {
+                    dom.feedback.classList.add(`is-${type}`);
+                }
+            }
+
+            function getCard(id) {
+                return document.querySelector(`.tile[data-id="${id}"]`);
+            }
+
+            function getCurrentZone(card) {
+                if (card.parentElement === dom.foodZone) return "food";
+                if (card.parentElement === dom.drinkZone) return "drink";
+                return "bank";
+            }
+
+            function getCounts() {
+                return {
+                    food: dom.foodZone.querySelectorAll(".tile").length,
+                    drink: dom.drinkZone.querySelectorAll(".tile").length,
+                    bank: dom.wordBank.querySelectorAll(".tile").length
+                };
+            }
+
+            // =====================================================
+            // 5. RENDERING AND COUNTERS
+            // =====================================================
+
+            function updateCounters() {
+                const counts = getCounts();
+                const sorted = counts.food + counts.drink;
+                const percentage = Math.round((sorted / vocabulary.length) * 100);
+
+                dom.counter.textContent = `${sorted} / ${vocabulary.length} sorted`;
+                dom.foodCount.textContent = counts.food;
+                dom.drinkCount.textContent = counts.drink;
+                dom.bankCount.textContent = `${counts.bank} ${counts.bank === 1 ? "card" : "cards"} remaining`;
+
+                dom.progressFill.style.width = `${percentage}%`;
+                dom.progressPercent.textContent = `${percentage}%`;
+
+                dom.foodPlaceholder.hidden = counts.food > 0;
+                dom.drinkPlaceholder.hidden = counts.drink > 0;
+            }
+
+            function updateTimerDisplay() {
+                dom.timer.textContent = formatTime(remainingMs);
+
+                dom.timerChip.classList.remove("is-warning", "is-danger");
+
+                if (remainingMs <= 10_000) {
+                    dom.timerChip.classList.add("is-danger");
+                } else if (remainingMs <= 30_000) {
+                    dom.timerChip.classList.add("is-warning");
+                }
+            }
+
+            function createCard(item, index) {
+                const card = document.createElement("button");
+
+                card.type = "button";
+                card.className = "tile";
+                card.draggable = true;
+                card.dataset.id = item.id;
+                card.setAttribute("aria-pressed", "false");
+                card.setAttribute("aria-label", `${item.word}. Select or drag to a category.`);
+                card.style.animationDelay = `${Math.min(index * 25, 300)}ms`;
+
+                const emoji = document.createElement("span");
+                emoji.className = "tile-emoji";
+                emoji.setAttribute("aria-hidden", "true");
+                emoji.textContent = item.emoji;
+
+                const word = document.createElement("span");
+                word.className = "tile-word";
+                word.textContent = item.word;
+
+                card.append(emoji, word);
+
+                card.addEventListener("click", () => handleCardClick(item.id));
+
+                card.addEventListener("dragstart", (event) => {
+                    if (isFinished) {
+                        event.preventDefault();
+                        return;
+                    }
+
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", String(item.id));
+                    card.classList.add("dragging");
+                });
+
+                card.addEventListener("dragend", () => {
+                    card.classList.remove("dragging");
+                    document.querySelectorAll(".category-panel").forEach(panel => {
+                        panel.classList.remove("over");
+                    });
+                });
+
+                return card;
+            }
+
+            function renderCards() {
+                // Remove cards from ALL zones before rebuilding a fresh round.
+                // Preserve placeholders so they can become visible again.
+                dom.foodZone.querySelectorAll(".tile").forEach(card => card.remove());
+                dom.drinkZone.querySelectorAll(".tile").forEach(card => card.remove());
+                dom.wordBank.replaceChildren();
+
+                shuffle(vocabulary).forEach((item, index) => {
+                    dom.wordBank.append(createCard(item, index));
+                });
+
+                updateCounters();
+            }
+
+            // =====================================================
+            // 6. CARD MOVEMENT / SELECTION
+            // =====================================================
+
+            function clearSelection() {
+                selectedId = null;
+
+                document.querySelectorAll(".tile[aria-pressed='true']").forEach(card => {
+                    card.setAttribute("aria-pressed", "false");
+                });
+            }
+
+            function moveCard(id, destination) {
+                if (isFinished) return;
+
+                const card = getCard(id);
+                if (!card) return;
+
+                const targets = {
+                    food: dom.foodZone,
+                    drink: dom.drinkZone,
+                    bank: dom.wordBank
+                };
+
+                if (!targets[destination]) return;
+
+                targets[destination].append(card);
+                clearSelection();
+                updateCounters();
+            }
+
+            function handleCardClick(id) {
+                if (isFinished) return;
+
+                const card = getCard(id);
+                if (!card) return;
+
+                const currentZone = getCurrentZone(card);
+
+                // Clicking a sorted card sends it back to the word bank.
+                if (currentZone !== "bank") {
+                    moveCard(id, "bank");
+                    setFeedback("Card returned to the word bank.");
+                    return;
+                }
+
+                // Clicking the selected card again deselects it.
+                if (selectedId === id) {
+                    clearSelection();
+                    setFeedback("Selection cleared.");
+                    return;
+                }
+
+                clearSelection();
+                selectedId = id;
+                card.setAttribute("aria-pressed", "true");
+                setFeedback(`Selected: ${card.querySelector(".tile-word").textContent}. Now choose FOOD or DRINK.`);
+            }
+
+            function handleZoneClick(zone) {
+                if (isFinished || selectedId === null) return;
+
+                moveCard(selectedId, zone);
+                setFeedback("Card placed. Keep going!");
+            }
+
+            // =====================================================
+            // 7. DRAG AND DROP
+            // =====================================================
+
+            function setupDropZone(zoneElement, category) {
+                const panel = category === "food" ? $("foodPanel") :
+                    category === "drink" ? $("drinkPanel") : $("bankPanel");
+
+                zoneElement.addEventListener("dragover", (event) => {
+                    if (isFinished) return;
+
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = "move";
+
+                    if (panel) panel.classList.add("over");
+                });
+
+                zoneElement.addEventListener("dragleave", (event) => {
+                    if (panel && !zoneElement.contains(event.relatedTarget)) {
+                        panel.classList.remove("over");
+                    }
+                });
+
+                zoneElement.addEventListener("drop", (event) => {
+                    event.preventDefault();
+
+                    if (panel) panel.classList.remove("over");
+                    if (isFinished) return;
+
+                    const id = Number(event.dataTransfer.getData("text/plain"));
+
+                    if (Number.isInteger(id) && vocabulary.some(item => item.id === id)) {
+                        moveCard(id, category);
+                        setFeedback("Card placed. Keep going!");
+                    }
+                });
+
+                zoneElement.addEventListener("click", (event) => {
+                    if (event.target.closest(".tile")) return;
+                    handleZoneClick(category);
+                });
+
+                zoneElement.addEventListener("keydown", (event) => {
+                    if ((event.key === "Enter" || event.key === " ") && selectedId !== null) {
+                        event.preventDefault();
+                        handleZoneClick(category);
+                    }
+                });
+            }
+
+            // =====================================================
+            // 8. TIMER: START
+            // =====================================================
+
+            function stopTimer() {
+                if (timerInterval !== null) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+
+            function tick() {
+                if (!isRunning || startedAt === null) return;
+
+                const elapsed = performance.now() - startedAt;
+                const currentRemaining = Math.max(0, remainingMs - elapsed);
+
+                dom.timer.textContent = formatTime(currentRemaining);
+
+                dom.timerChip.classList.remove("is-warning", "is-danger");
+
+                if (currentRemaining <= 10_000) {
+                    dom.timerChip.classList.add("is-danger");
+                } else if (currentRemaining <= 30_000) {
+                    dom.timerChip.classList.add("is-warning");
+                }
+
+                if (currentRemaining <= 0) {
+                    remainingMs = 0;
+                    updateTimerDisplay();
+                    finishGame("time");
+                }
+            }
+
+            function startTimer() {
+                if (isFinished || isRunning || remainingMs <= 0) return;
+
+                isRunning = true;
+                startedAt = performance.now();
+
+                dom.startBtn.disabled = true;
+
+                setFeedback("Race started! Sort all 15 words before time runs out.");
+
+                timerInterval = window.setInterval(tick, 100);
+            }
+
+            // =====================================================
+            // 9. CHECK ANSWERS / RESULTS
+            // =====================================================
+
+            function calculateScore() {
+                let score = 0;
+                const details = [];
+
+                vocabulary.forEach(item => {
+                    const card = getCard(item.id);
+                    const actual = getCurrentZone(card);
+                    const correct = actual === item.category;
+
+                    if (correct) score++;
+
+                    details.push({ item, card, correct, actual });
+                });
+
+                return { score, details };
+            }
+
+            function finishGame(reason = "manual") {
+                if (isFinished) return;
+
+                if (isRunning && startedAt !== null) {
+                    remainingMs = Math.max(0, remainingMs - (performance.now() - startedAt));
+                }
+
+                isRunning = false;
+                startedAt = null;
+                isFinished = true;
+                stopTimer();
+
+                dom.startBtn.disabled = true;
+                dom.checkBtn.disabled = true;
+
+                const { score, details } = calculateScore();
+
+                details.forEach(({ card, correct }) => {
+                    card.classList.remove("correct", "wrong");
+                    card.classList.add(correct ? "correct" : "wrong");
+                    card.draggable = false;
+                    card.setAttribute("aria-pressed", "false");
+                });
+
+                clearSelection();
+                updateTimerDisplay();
+
+                const perfect = score === vocabulary.length;
+                const percentage = Math.round((score / vocabulary.length) * 100);
+
+                let emoji = "💪";
+                let title = "Nice try!";
+                let message = `${score} out of ${vocabulary.length} correct · ${percentage}% accuracy`;
+
+                if (perfect) {
+                    emoji = "🏆";
+                    title = "PERFECT SCORE!";
+                    message = "Amazing! Every word is in the correct category.";
+                    launchConfetti();
+                    setFeedback("🏆 PERFECT! 15 / 15 correct!", "success");
+                } else if (score >= 12) {
+                    emoji = "🌟";
+                    title = "Excellent work!";
+                    setFeedback(`Excellent! You got ${score} / ${vocabulary.length} correct.`, "success");
+                } else if (score >= 8) {
+                    emoji = "👏";
+                    title = "Good effort!";
+                    setFeedback(`Good effort! You got ${score} / ${vocabulary.length} correct.`, "warning");
+                } else {
+                    setFeedback(`Time to practise! You got ${score} / ${vocabulary.length} correct.`, "warning");
+                }
+
+                if (reason === "time" && !perfect) {
+                    message += " Time is up!";
+                } else if (reason === "manual") {
+                    message += " Answers have been checked.";
+                }
+
+                dom.resultEmoji.textContent = emoji;
+                dom.resultTitle.textContent = title;
+                dom.resultScore.textContent = `${score}/${vocabulary.length}`;
+                dom.resultDetail.textContent = message;
+                dom.resultOverlay.classList.add("show");
+                dom.resultCloseBtn.focus();
+            }
+
+            // =====================================================
+            // 10. RESET
+            // =====================================================
+
+            function resetGame() {
+                stopTimer();
+
+                remainingMs = GAME_DURATION;
+                startedAt = null;
+                isRunning = false;
+                isFinished = false;
+                selectedId = null;
+
+                dom.startBtn.disabled = false;
+                dom.startBtn.textContent = "▶ Start race";
+                dom.checkBtn.disabled = false;
+
+                dom.resultOverlay.classList.remove("show");
+                dom.confettiLayer.replaceChildren();
+
+                dom.timerChip.classList.remove("is-warning", "is-danger");
+
+                renderCards();
+                updateTimerDisplay();
+
+                setFeedback("Ready? Press Start race when your team is ready!");
+            }
+
+            // =====================================================
+            // 11. CONFETTI EFFECT
+            // =====================================================
+
+            function launchConfetti() {
+                const colors = [
+                    "#ff765e",
+                    "#56b8ff",
+                    "#39d69a",
+                    "#ffc65c",
+                    "#9a8cff",
+                    "#ff8ec7"
+                ];
+
+                dom.confettiLayer.replaceChildren();
+
+                for (let i = 0; i < 90; i++) {
+                    const piece = document.createElement("span");
+
+                    piece.className = "confetti";
+                    piece.style.left = `${Math.random() * 100}%`;
+                    piece.style.background = colors[i % colors.length];
+                    piece.style.setProperty("--duration", `${2 + Math.random() * 2.2}s`);
+                    piece.style.setProperty("--drift", `${-100 + Math.random() * 200}px`);
+                    piece.style.setProperty("--rotation", `${Math.random() * 180}deg`);
+                    piece.style.animationDelay = `${Math.random() * 0.8}s`;
+
+                    dom.confettiLayer.append(piece);
+                }
+
+                window.setTimeout(() => {
+                    dom.confettiLayer.replaceChildren();
+                }, 5500);
+            }
+
+
+            // =====================================================
+            // 13. EVENT LISTENERS
+            // =====================================================
+
+            dom.startBtn.addEventListener("click", startTimer);
+            dom.checkBtn.addEventListener("click", () => finishGame("manual"));
+            dom.resetBtn.addEventListener("click", resetGame);
+
+            dom.resultReplayBtn.addEventListener("click", resetGame);
+            dom.resultCloseBtn.addEventListener("click", () => {
+                dom.resultOverlay.classList.remove("show");
+            });
+
+            dom.resultOverlay.addEventListener("click", (event) => {
+                if (event.target === dom.resultOverlay) {
+                    dom.resultOverlay.classList.remove("show");
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && dom.resultOverlay.classList.contains("show")) {
+                    dom.resultOverlay.classList.remove("show");
+                }
+            });
+
+            // =====================================================
+            // 14. INITIALISE
+            // =====================================================
+
+            setupDropZone(dom.foodZone, "food");
+            setupDropZone(dom.drinkZone, "drink");
+            setupDropZone(dom.wordBank, "bank");
+
+            resetGame();
+
+        })();
+    </script>
+</body>
+</html>
